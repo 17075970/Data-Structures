@@ -41,7 +41,7 @@ public interface ISupporterDatabase {
      */
     public int size();
 	
-	/**
+    /**
      * Determines if the database is empty or not.
      * @pre true
      * @return true iff the database is empty

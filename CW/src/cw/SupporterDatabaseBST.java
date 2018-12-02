@@ -21,58 +21,105 @@ public class SupporterDatabaseBST implements ISupporterDatabase{
         System.out.println("Binary Search Tree is created");
     }
 
+    /**
+     * Empties the database.
+     * @pre true
+     */
     @Override
     public void clear() {
         size = 0;
         head = null;
     }
 
+    /**
+     * Determines whether a Supporter name exists as a key inside the database
+     * @pre true
+     * @param name the Supporter name (key) to locate
+     * @return true iff the name exists as a key in the database
+     */
     @Override
     public boolean containsName(String name) {
         return get(name) != null;
     }
 
+    /**
+     * Returns a Supporter object mapped to the supplied name.
+     * @pre true
+     * @param name The Supporter name (key) to locate
+     * @return the Supporter object mapped to the key name if the name
+     * exists as key in the database, otherwise null
+     */
     @Override
     public Supporter get(String name) {
         Supporter ans = null;
         
         if(head != null){
-            ans = head.get(name, 0).getData();
+            node a = head.get(name, 0);
+            if(a != null){
+                ans = a.getData();
+            }
+            else System.out.println("There is no Supporter with this name");
         }
         
         return ans;
     }
 
+    /**
+     * Returns the number of supporters in the database
+     * @pre true
+     * @return number of supporters in the database. 0 if empty
+     */
     @Override
     public int size() {
         return size;
     }
-
+    
+    /**
+     * Determines if the database is empty or not.
+     * @pre true
+     * @return true iff the database is empty
+     */
     @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
+    /**
+     * Inserts a supporter object into the database, with the key of the supplied
+     * supporter's name.
+     * Note: If the name already exists as a key, then then the original entry is
+     * overwritten. This method should return the previous associated value if one exists, otherwise null
+     * @pre true
+     */
     @Override
     public Supporter put(Supporter supporter) {
         int num = 0;
-        size++;
         node n = new node(supporter);
         if(head == null){
-            head = n; 
+            head = n;
+            size++;
+            num++;
         }
         else{
             num = head.add(n);
         }
         
-        System.out.println(supporter.getName() + "(" + supporter.getID() + ") has been added");
+        System.out.println(color(supporter.getName()) + "(" + color(supporter.getID()) + ") has been added");
         System.out.println(num + " of cells have been checked");
         System.out.println("Now you have " + size + " elements in your list");
-        System.out.println("Deph is " + deph());
+        System.out.println("Depth is " + depth());
         
         return n.data;
     }
 
+    /**
+     * Removes and returns a supporter from the database, with the key
+     * the supplied name.
+     * @param name The name (key) to remove.
+     * @pre true
+     * @return the removed supporter object mapped to the name, or null if
+     * the name does not exist.
+     */
     @Override
     public Supporter remove(String name) {
         Supporter ans = null;
@@ -92,6 +139,7 @@ public class SupporterDatabaseBST implements ISupporterDatabase{
         if(current != null){
             ans = current.getData();
             
+            
             if(prev == null){
                 head = head.remove();
             }
@@ -107,9 +155,17 @@ public class SupporterDatabaseBST implements ISupporterDatabase{
         
         if(ans != null) size--;
         
+        System.out.println(ans == null ? "There is no supporter with this name" : color(ans.getName()) + "(" + color(ans.getID()) + ") has been deleted");
+        System.out.println((ans == null ? "You still have " : "Now you have ") + size + " elements in your list");
+        System.out.println("Detph is " + depth());
+        
         return ans;
     }
 
+    /**
+     * Prints the names and IDs of all the supporters in the database in alphabetic order.
+     * @pre true
+     */
     @Override
     public void printSupportersOrdered() {
         if(head != null){
@@ -121,9 +177,15 @@ public class SupporterDatabaseBST implements ISupporterDatabase{
         }
     }
     
-    private int deph(){
+    private int depth(){
         return head == null ? 0 : head.subDeph();
     }
+    
+    private String color(String text){
+        return "\033[34m" + text + "\033[0m";
+    }
+    
+    
     
     private class node{
         private Supporter data;
@@ -133,29 +195,36 @@ public class SupporterDatabaseBST implements ISupporterDatabase{
             this.data = data;
         }
         
-        public int add(node newbie){
+        public int add(node supporter){
             int ans = 1;
-            if(newbie.getData().getName().compareTo(data.getName()) < 0){
-                System.out.println("    " + newbie.getData().getName() + " is less, than " + data.getName() + ", so we go left");
+            if(supporter.getData().getName().compareTo(data.getName()) < 0){
+                System.out.println("    " + color(supporter.getData().getName()) + " is less, than " + color(data.getName()) + ", so we go left");
                 if(left == null){
-                    System.out.println("    " + "As left is empty, we add " + newbie.getData().getName() + " there");
-                    left = newbie;
+                    System.out.println("    As left is empty, we add " + color(supporter.getData().getName()) + " there");
+                    left = supporter;
+                    size++;
+                    ans++;
                 }
                 else{
-                    System.out.println("    " + "As left is busy, we compare " + newbie.getData().getName() + " with " + left.getData().getName());
-                    ans += left.add(newbie);
+                    System.out.println("    As left is busy, we compare " + color(supporter.getData().getName()) + " with " + color(left.getData().getName()));
+                    ans += left.add(supporter);
                 }
             }
-            else{
-                System.out.println("    " + newbie.getData().getName() + " is greater, than " + data.getName() + ", so we go right");
+            else if(supporter.getData().getName().compareTo(data.getName()) > 0){
+                System.out.println("    " + color(supporter.getData().getName()) + " is greater, than " + color(data.getName()) + ", so we go right");
                 if(right == null){
-                    System.out.println("    " + "As right is empty, we add " + newbie.getData().getName() + " there");
-                    right = newbie;
+                    System.out.println("    As right is empty, we add " + color(supporter.getData().getName()) + " there");
+                    right = supporter;
+                    size++;
+                    ans++;
                 }
                 else{
-                    System.out.println("    " + "As right is busy, we compare " + newbie.getData().getName() + " with " + right.getData().getName());
-                    ans += right.add(newbie);
+                    System.out.println("    As right is busy, we compare " + color(supporter.getData().getName()) + " with " + color(right.getData().getName()));
+                    ans += right.add(supporter);
                 }
+            }
+            else {
+                data = supporter.data;
             }
             return ans;
         }
@@ -167,8 +236,12 @@ public class SupporterDatabaseBST implements ISupporterDatabase{
                 ans = this;
                 System.out.println(n + " of cells have been checked");
             }
-            else if(data.getName().compareTo(name) > 0 && left != null) ans = left.get(name, n + 1);
-            else if(data.getName().compareTo(name) < 0 && right != null)ans = right.get(name, n + 1);
+            else if(data.getName().compareTo(name) > 0 && left != null){
+                ans = left.get(name, n + 1);
+            }
+            else if(data.getName().compareTo(name) < 0 && right != null){
+                ans = right.get(name, n + 1);
+            }
             
             return ans;
         }
@@ -177,7 +250,7 @@ public class SupporterDatabaseBST implements ISupporterDatabase{
             if(left != null){
                 left.print(gap);
             }
-            System.out.println(data.getName() + gap.substring(data.getName().length()) + data.getID());
+            System.out.println(color(data.getName()) + gap.substring(data.getName().length()) + color(data.getID()));
             if(right != null){
                 right.print(gap);
             }
@@ -197,9 +270,17 @@ public class SupporterDatabaseBST implements ISupporterDatabase{
             if(left != null && right != null){
                 right.add(left);
                 ans = right;
+                System.out.println("This node has both nodes");
             }
-            else if(left == null) ans = right;
-            else if(right == null) ans = left;
+            else if(left == null){
+                ans = right;
+                System.out.println("This node has right node");
+            }
+            else if(right == null){
+                ans = left;
+                System.out.println("This node has left node");
+            }
+            else System.out.println("This node is leaf");
             
             return ans;
         }
@@ -231,5 +312,4 @@ public class SupporterDatabaseBST implements ISupporterDatabase{
             right = n;
         }
     }
-    
 }
